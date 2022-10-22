@@ -17,56 +17,24 @@ const makeJson = browser => ({
       ],
       "expand": [
         {
-          "name": "Scoping - classes - RHS",
-          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=true&oneBigStyle=false&useClasses=true"
-        },
-        {
-          "name": "Scoping - attributes - RHS",
-          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=true&oneBigStyle=false&useClasses=false"
-        },
-        {
           "name": "Shadow DOM",
           "url": "http://localhost:3000/?auto=true&useShadowDom=true&scopeStyles=false"
         },
         {
           "name": "Unscoped",
-          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=false&oneBigStyle=false"
+          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=false&advanceStyle=false"
         },
         {
-          "name": "Scoping - classes - RHS - concatenated",
-          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=true&oneBigStyle=true&useClasses=true"
-        },
-        {
-          "name": "Scoping - attributes - RHS - concatenated",
-          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=true&oneBigStyle=true&useClasses=false"
-        },
-        {
-          "name": "Unscoped - concatenated",
-          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=false&oneBigStyle=true"
+          "name": "Unscoped - styles in advance",
+          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=false&advanceStyle=true"
         },
         {
           "name": "Scoping - classes - full",
-          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=true&oneBigStyle=false&useClasses=true&scopeModeEvery=true"
+          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=true&advanceStyle=false&useClasses=true&scopeModeEvery=true"
         },
         {
-          "name": "Scoping - attributes - full",
-          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=true&oneBigStyle=false&useClasses=false&scopeModeEvery=true"
-        },
-        {
-          "name": "Scoping - tag prefix",
-          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=true&oneBigStyle=false&useClasses=true&scopeModePrefix=true"
-        },
-        {
-          "name": "Scoping - classes - full - concatenated",
-          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=true&oneBigStyle=true&useClasses=true&scopeModeEvery=true"
-        },
-        {
-          "name": "Scoping - attributes - full - concatenated",
-          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=true&oneBigStyle=true&useClasses=false&scopeModeEvery=true"
-        },
-        {
-          "name": "Scoping - tag prefix - concatenated",
-          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=true&oneBigStyle=true&useClasses=true&scopeModePrefix=true"
+          "name": "Scoping - classes - full - styles in advance",
+          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=true&advanceStyle=true&useClasses=true&scopeModeEvery=true"
         }
       ]
     }

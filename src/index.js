@@ -21,7 +21,7 @@ const numComponentsInput = $('#numComponents')
 const numElementsInput = $('#numElements')
 const numClassesInput = $('#numClasses')
 const numAttributesInput = $('#numAttributes')
-const oneBigStyleInput = $('#oneBigStyle')
+const advanceStylesInput = $('#advanceStyles')
 const useClassesInput = $('#useClasses')
 const scopeModeInputLast = $('#scopeModeLast')
 const scopeModeInputEvery = $('#scopeModeEvery')
@@ -129,6 +129,14 @@ function reset() {
   componentTagNameIndex = 0
 }
 
+// requestPostAnimationFrame polyfill
+function requestPostAnimationFrame(cb) {
+  requestAnimationFrame(() => {
+    addEventListener('message', cb, { once: true })
+    postMessage('', '*')
+  })
+}
+
 async function doRunTest() {
   const numComponents = parseInt(numComponentsInput.value, 10)
   const numElementsPerComponent = parseInt(numElementsInput.value, 10)
@@ -137,7 +145,7 @@ async function doRunTest() {
   const numRulesPerComponent = parseInt(numRulesInput.value, 10)
   const useShadowDom = useShadowDomInput.checked
   const scopeStyles = scopeStylesInput.checked
-  const oneBigStyle = oneBigStyleInput.checked
+  const advanceStyles = advanceStylesInput.checked
   const useClasses = useClassesInput.checked
   const scopeMode = scopeModeInputLast.checked ? 'last' : scopeModeInputEvery.checked ? 'every' : 'prefix'
 
@@ -216,65 +224,67 @@ async function doRunTest() {
   const newRoot = document.createElement('div')
   let lastComponent
 
+  const deferredAppends = []
+
   for (let i = 0; i < numComponents; i++) {
     const scopeToken = scopeStyles && `scope-${++scopeId}`
     const { component, tags, classes, attributes } = createComponent({ scopeToken })
 
-    generateStylesheetPromises.push((async () => {
-      const stylesheet = await generateRandomScopedCss({ classes, tags, attributes, scopeToken, useClasses, scopeMode, componentTag: component.tagName.toLowerCase() })
-
-      if (useShadowDom) {
-        return { shadowRoot: component.shadowRoot, stylesheet }
-      } else {
-        return stylesheet
-      }
-    })())
+    const stylesheetPromise = (async () => {
+      return (await generateRandomScopedCss({ classes, tags, attributes, scopeToken, useClasses, scopeMode, componentTag: component.tagName.toLowerCase() }))
+    })()
+    generateStylesheetPromises.push(stylesheetPromise)
 
     // Chance of making the tree deeper or keeping it flat
-    if (lastComponent && randomBool()) {
-      (lastComponent.shadowRoot ?? lastComponent).appendChild(component)
-    } else {
-      newRoot.appendChild(component)
-    }
+    const goDeep = lastComponent && randomBool()
+
+    const cachedLastComponent = lastComponent
     lastComponent = component
-  }
 
-  function flushStyles(stylesheetsToProcess) {
-    if (useShadowDom) {
-      // We probably could have appended stylesheets to the shadow roots earlier,
-      // but just in case browsers have some magic to process the stylesheet as early as possible,
-      // do it at the same time we would be injecting global styles
-      for (const { shadowRoot, stylesheet } of stylesheetsToProcess) {
-        shadowRoot.appendChild(createStyleTag(stylesheet))
-      }
-    } else {
-      if (oneBigStyle) {
-        injectGlobalCss(stylesheetsToProcess.join('\n'))
+    const append = () => {
+      if (goDeep) {
+        (cachedLastComponent.shadowRoot ?? cachedLastComponent).appendChild(component)
       } else {
-        for (const stylesheet of stylesheetsToProcess) {
-          injectGlobalCss(stylesheet)
-        }
+        newRoot.appendChild(component)
       }
     }
+
+    const stylesheetAppend = async () => {
+      if (useShadowDom) {
+        component.shadowRoot.appendChild(createStyleTag(await stylesheetPromise))
+      } else {
+        injectGlobalCss(await stylesheetPromise)
+      }
+    }
+
+    deferredAppends.push({ append, stylesheetAppend })
   }
 
-  // Flush everything to the DOM in one go so we can measure accurately
-  const stylesheetsToProcess = await Promise.all(generateStylesheetPromises)
-  flushStyles(stylesheetsToProcess)
-  container.appendChild(newRoot)
+  // wait for all web workers
+  await Promise.all(generateStylesheetPromises)
 
   performance.mark('start')
-  // requestPostAnimationFrame polyfill
-  requestAnimationFrame(() => {
-    addEventListener('message', () => {
-      performance.measure('total', 'start')
-      display.innerHTML += `${performance.getEntriesByType('measure').slice(-1)[0].duration}ms\n`
 
-      logChecksums()
+  container.appendChild(newRoot)
+  if (advanceStyles) {
+    for (const deferredAppend of deferredAppends) {
+      await deferredAppend.stylesheetAppend
+    }
+  }
+  for (const deferredAppend of deferredAppends) {
+    if (!advanceStyles) {
+      await deferredAppend.stylesheetAppend()
+    }
+    deferredAppend.append()
+    performance.mark('start_component')
+    await new Promise(resolve => requestPostAnimationFrame(() => resolve()))
+    performance.measure('component', 'start_component')
+  }
 
-    }, { once: true })
-    postMessage('', '*')
-  })
+  // end
+  performance.measure('total', 'start')
+  display.innerHTML += `${performance.getEntriesByName('total').slice(-1)[0].duration}ms\n`
+  logChecksums()
 }
 
 async function logChecksums() {

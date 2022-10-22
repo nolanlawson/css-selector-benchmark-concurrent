@@ -1,6 +1,6 @@
 # shadow-selector-benchmark
 
-Benchmark of shadow DOM and CSS selectors, described in this post: https://nolanlawson.com/2022/06/22/style-scoping-versus-shadow-dom-which-is-fastest/
+Fork of https://github.com/nolanlawson/shadow-selector-benchmark to test "concurrent rendering" with CSS selectors.
 
 To run the benchmark:
 

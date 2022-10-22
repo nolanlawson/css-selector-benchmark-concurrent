@@ -3,15 +3,15 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
-  <title>Shadow DOM CSS selector benchmark</title>
+  <title>CSS selector benchmark ("concurrent rendering")</title>
 </head>
 <body>
 <main style="max-width: 600px; margin: 0 auto;">
-  <h1>Shadow DOM CSS selector benchmark</h1>
+  <h1>CSS selector benchmark ("concurrent rendering")</h1>
 
   <form aria-label="Choose options" style="font-size: 1.2em">
     <div style="padding: 10px;">
-      <label>Number of components: <input type="number" step="1" value="1000" id="numComponents"></label>
+      <label>Number of components: <input type="number" step="1" value="200" id="numComponents"></label>
     </div>
     <div style="padding: 10px;">
       <label>Elements per component: <input type="number" step="1" value="10" id="numElements"></label>
@@ -58,7 +58,7 @@
       </fieldset>
     </div>
     <div style="padding: 10px">
-      <label>Concatenate stylesheets (when inserting globally) <input type="checkbox" id="oneBigStyle" checked></label>
+      <label>Append stylesheets in advance (when inserting globally) <input type="checkbox" id="advanceStyles" checked></label>
     </div>
     <div style="padding: 10px;">
       <button id="go" style="font-size: 1em">Go</button>
