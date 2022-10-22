@@ -18,23 +18,23 @@ const makeJson = browser => ({
       "expand": [
         {
           "name": "Shadow DOM",
-          "url": "http://localhost:3000/?auto=true&useShadowDom=true&scopeStyles=false"
+          "url": "http://localhost:3000/?auto=true&useShadowDom=true&scopeStyles=false&advanceStyles=false"
         },
         {
           "name": "Unscoped",
-          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=false&advanceStyle=false"
+          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=false&advanceStyles=false"
         },
         {
           "name": "Unscoped - styles in advance",
-          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=false&advanceStyle=true"
+          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=false&advanceStyles=true"
         },
         {
           "name": "Scoping - classes - full",
-          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=true&advanceStyle=false&useClasses=true&scopeModeEvery=true"
+          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=true&advanceStyles=false&useClasses=true&scopeModeEvery=true"
         },
         {
           "name": "Scoping - classes - full - styles in advance",
-          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=true&advanceStyle=true&useClasses=true&scopeModeEvery=true"
+          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=true&advanceStyles=true&useClasses=true&scopeModeEvery=true"
         }
       ]
     }
