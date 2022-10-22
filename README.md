@@ -1,4 +1,4 @@
-# shadow-selector-benchmark
+# css-selector-benchmark-concurrent
 
 Fork of https://github.com/nolanlawson/shadow-selector-benchmark to test "concurrent rendering" with CSS selectors.
 
