@@ -22,6 +22,7 @@ const numElementsInput = $('#numElements')
 const numClassesInput = $('#numClasses')
 const numAttributesInput = $('#numAttributes')
 const advanceStylesInput = $('#advanceStyles')
+const delayInsertingDomInput = $('#delayInsertingDom')
 const useClassesInput = $('#useClasses')
 const scopeModeInputLast = $('#scopeModeLast')
 const scopeModeInputEvery = $('#scopeModeEvery')
@@ -146,6 +147,7 @@ async function doRunTest() {
   const useShadowDom = useShadowDomInput.checked
   const scopeStyles = scopeStylesInput.checked
   const advanceStyles = advanceStylesInput.checked
+  const delayInsertingDom = delayInsertingDomInput.checked
   const useClasses = useClassesInput.checked
   const scopeMode = scopeModeInputLast.checked ? 'last' : scopeModeInputEvery.checked ? 'every' : 'prefix'
 
@@ -220,46 +222,61 @@ async function doRunTest() {
     return { component, tags, classes, attributes }
   }
 
-  const newRoot = document.createElement('div')
-  let lastComponent
+  function createComponents(withStyle) {
+    const newRoot = document.createElement('div')
+    let lastComponent
 
-  const deferredAppends = []
+    const deferredAppends = []
 
-  for (let i = 0; i < numComponents; i++) {
-    const scopeToken = scopeStyles && `scope-${++scopeId}`
-    const { component, tags, classes, attributes } = createComponent({ scopeToken })
+    for (let i = 0; i < numComponents; i++) {
+      const scopeToken = scopeStyles && `scope-${++scopeId}`
+      const { component, tags, classes, attributes } = createComponent({ scopeToken })
 
-    // Chance of making the tree deeper or keeping it flat
-    const goDeep = lastComponent && randomBool()
+      // Chance of making the tree deeper or keeping it flat
+      const goDeep = lastComponent && randomBool()
 
-    const cachedLastComponent = lastComponent
-    lastComponent = component
+      const cachedLastComponent = lastComponent
+      lastComponent = component
 
-    const append = () => {
-      if (goDeep) {
-        (cachedLastComponent.shadowRoot ?? cachedLastComponent).appendChild(component)
-      } else {
-        newRoot.appendChild(component)
+      const append = () => {
+        if (goDeep) {
+          (cachedLastComponent.shadowRoot ?? cachedLastComponent).appendChild(component)
+        } else {
+          newRoot.appendChild(component)
+        }
       }
-    }
 
-    const stylesheetAppend = (stylesheet) => {
-      if (useShadowDom) {
-        component.shadowRoot.appendChild(createStyleTag(stylesheet))
-      } else {
-        injectGlobalCss(stylesheet)
-      }
-    }
+      const stylesheetAppend = withStyle ? (stylesheet) => {
+        if (useShadowDom) {
+          component.shadowRoot.appendChild(createStyleTag(stylesheet))
+        } else {
+          injectGlobalCss(stylesheet)
+        }
+      } : () => {}
 
-    const stylesheetPromise = (async () => {
-      return (await generateRandomScopedCss({ classes, tags, attributes, scopeToken, useClasses, scopeMode, componentTag: component.tagName.toLowerCase() }))
-    })()
-    deferredAppends.push({ append, stylesheetAppend, stylesheetPromise })
+      const stylesheetPromise = withStyle ? (async () => {
+        return (await generateRandomScopedCss({ classes, tags, attributes, scopeToken, useClasses, scopeMode, componentTag: component.tagName.toLowerCase() }))
+      })() : Promise.resolve()
+      deferredAppends.push({ append, stylesheetAppend, stylesheetPromise })
+    }
+    return { newRoot, deferredAppends }
   }
+
+  const { newRoot, deferredAppends } = createComponents(true)
 
   // wait for all web workers
   for (const deferredAppend of deferredAppends) {
     deferredAppend.stylesheet = await deferredAppend.stylesheetPromise
+  }
+
+  if (delayInsertingDom) {
+    // insert some initial DOM so that there are some initial style costs
+    const { newRoot: initialRoot, deferredAppends: initialAppends } = createComponents(false)
+    container.appendChild(initialRoot)
+    for (const { append } of initialAppends) {
+      append()
+    }
+    await new Promise(resolve => requestPostAnimationFrame(() => resolve()))
   }
 
   performance.mark('start')
@@ -274,10 +291,21 @@ async function doRunTest() {
     if (!advanceStyles) { // insert styles on a per-component basis
       stylesheetAppend(stylesheet)
     }
-    append()
-    performance.mark('start_component')
+    if (!delayInsertingDom) {
+      append()
+    }
+    performance.mark('start_component_style')
     await new Promise(resolve => requestPostAnimationFrame(() => resolve()))
-    performance.measure('component', 'start_component')
+    performance.measure('component_style', 'start_component_style')
+  }
+
+  if (delayInsertingDom) {
+    for (const { append } of deferredAppends) {
+      append()
+    }
+    performance.mark('start_insert_dom')
+    await new Promise(resolve => requestPostAnimationFrame(() => resolve()))
+    performance.measure('insert_dom', 'start_insert_dom')
   }
 
   // end

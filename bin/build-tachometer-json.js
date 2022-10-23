@@ -35,6 +35,26 @@ const makeJson = browser => ({
         {
           "name": "Scoping - classes - full - styles in advance",
           "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=true&advanceStyles=true&useClasses=true&scopeModeEvery=true"
+        },
+        {
+          "name": "Shadow DOM - delay inserting nodes",
+          "url": "http://localhost:3000/?auto=true&useShadowDom=true&scopeStyles=false&advanceStyles=false&delayInsertingDom=true"
+        },
+        {
+          "name": "Unscoped - delay inserting nodes",
+          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=false&advanceStyles=false&delayInsertingDom=true"
+        },
+        {
+          "name": "Unscoped - styles in advance - delay inserting nodes",
+          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=false&advanceStyles=true&delayInsertingDom=true"
+        },
+        {
+          "name": "Scoping - classes - full - delay inserting nodes",
+          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=true&advanceStyles=false&useClasses=true&scopeModeEvery=true&delayInsertingDom=true"
+        },
+        {
+          "name": "Scoping - classes - full - styles in advance - delay inserting nodes",
+          "url": "http://localhost:3000/?auto=true&useShadowDom=false&scopeStyles=true&advanceStyles=true&useClasses=true&scopeModeEvery=true&delayInsertingDom=true"
         }
       ]
     }
